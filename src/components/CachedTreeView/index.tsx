@@ -2,8 +2,8 @@
 import { CacheTreeType } from 'types/treeTypes';
 
 import React, { FC, memo, useCallback, useState } from 'react';
-import { Input } from 'antd';
-
+import Input from 'antd/lib/input';
+import Form from 'antd/lib/form';
 import Tree from 'antd/lib/tree';
 import Button from 'antd/lib/button';
 
@@ -11,6 +11,7 @@ import './styles.less';
 
 interface CachedTreeViewProps {
   cacheData: CacheTreeType[];
+  updateTreeData: (key: string, value: string) => void;
 }
 
 type InfoType = {
@@ -28,7 +29,7 @@ type InfoType = {
  */
 
 const CachedTreeView: FC<CachedTreeViewProps> = (props) => {
-  const { cacheData } = props;
+  const { cacheData, updateTreeData } = props;
   const [selectedNode, setSelectedNode] = useState<CacheTreeType>();
   const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
   const [editMode, setEditMode] = useState<boolean>(false);
@@ -48,10 +49,15 @@ const CachedTreeView: FC<CachedTreeViewProps> = (props) => {
     setSelectedKeys([key]);
   }, [clearSelected]);
 
-  const onValueChange = useCallback((values) => {
+  const onValueChange = useCallback((values: { value: string }) => {
     console.log('onValueChange', values);
+
+    if (selectedNode) {
+      updateTreeData(selectedNode.key, values.value);
+    }
+
     clearSelected();
-  }, [clearSelected]);
+  }, [clearSelected, selectedNode, updateTreeData]);
 
   const onToggleEditMode = useCallback(() => {
     setEditMode((prevState) => !prevState);
@@ -69,17 +75,20 @@ const CachedTreeView: FC<CachedTreeViewProps> = (props) => {
         treeData={cacheData}
       />
       { selectedNode && editMode && (
-        <form onSubmit={onValueChange}>
-          <Input
-            defaultValue={selectedNode.title}
-            name='value'
-          />
+        <Form
+          initialValues={{ value: selectedNode.title }}
+          name='setValue'
+          onFinish={onValueChange}
+        >
+          <Form.Item name='value'>
+            <Input />
+          </Form.Item>
           <Button
             htmlType='submit'
           >
             Submit
           </Button>
-        </form>
+        </Form>
       )}
       <div className='button-group'>
         <Button disabled={!selectedNode}>+</Button>
