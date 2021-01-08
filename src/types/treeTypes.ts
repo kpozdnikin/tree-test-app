@@ -1,5 +1,4 @@
 // Copyright 2020 @kpozdnikin
-import { ReactNode } from 'react';
 
 export type DbTreeType = {
   attributes: {
@@ -12,7 +11,6 @@ export type DbTreeType = {
 
 export type CacheTreeType = {
   children: CacheTreeType[];
-  icon?: ReactNode;
   isLeaf: boolean;
   key: string;
   title: string;

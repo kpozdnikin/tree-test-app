@@ -11,7 +11,8 @@ import './styles.less';
 
 interface CachedTreeViewProps {
   cacheData: CacheTreeType[];
-  updateTreeData: (key: string, value: string) => void;
+  deleteTreeNode: (key: string) => void;
+  updateTreeNodeName: (key: string, value: string) => void;
 }
 
 type InfoType = {
@@ -29,7 +30,7 @@ type InfoType = {
  */
 
 const CachedTreeView: FC<CachedTreeViewProps> = (props) => {
-  const { cacheData, updateTreeData } = props;
+  const { cacheData, deleteTreeNode, updateTreeNodeName } = props;
   const [selectedNode, setSelectedNode] = useState<CacheTreeType>();
   const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
   const [editMode, setEditMode] = useState<boolean>(false);
@@ -53,15 +54,21 @@ const CachedTreeView: FC<CachedTreeViewProps> = (props) => {
     console.log('onValueChange', values);
 
     if (selectedNode) {
-      updateTreeData(selectedNode.key, values.value);
+      updateTreeNodeName(selectedNode.key, values.value);
     }
 
     clearSelected();
-  }, [clearSelected, selectedNode, updateTreeData]);
+  }, [clearSelected, selectedNode, updateTreeNodeName]);
 
   const onToggleEditMode = useCallback(() => {
     setEditMode((prevState) => !prevState);
   }, []);
+
+  const onDeleteTreeNode = useCallback(() => {
+    if (selectedNode) {
+      deleteTreeNode(selectedNode.key);
+    }
+  }, [deleteTreeNode, selectedNode]);
 
   return (
     <div className='cached-tree-view'>
@@ -92,7 +99,12 @@ const CachedTreeView: FC<CachedTreeViewProps> = (props) => {
       )}
       <div className='button-group'>
         <Button disabled={!selectedNode}>+</Button>
-        <Button disabled={!selectedNode}>-</Button>
+        <Button
+          disabled={!selectedNode}
+          onClick={onDeleteTreeNode}
+        >
+          -
+        </Button>
         <Button
           disabled={!selectedNode}
           onClick={onToggleEditMode}

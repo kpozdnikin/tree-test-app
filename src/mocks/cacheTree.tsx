@@ -1,15 +1,11 @@
 // Copyright 2020 @kpozdnikin
 import { CacheTreeType } from 'types/treeTypes';
-import React from 'react';
-
-import { StopOutlined } from '@ant-design/icons';
 
 export const cacheTree: CacheTreeType[] = [
   {
     children: [
       {
         children: [],
-        icon: <StopOutlined />,
         isLeaf: true,
         key: '0-0-0',
         title: 'leaf 0-0'
