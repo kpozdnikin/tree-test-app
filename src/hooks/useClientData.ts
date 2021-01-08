@@ -1,7 +1,8 @@
 // Copyright 2020 @kpozdnikin
 
 import { useCallback, useState } from 'react';
-import { CacheTreeType, CacheMapItemType } from 'types/treeTypes';
+import { CacheTreeType } from 'types/treeTypes';
+import { CacheMapItemType } from 'types/mapTypes';
 import { cacheTree } from '../mocks/cacheTree';
 
 interface ClientDataInterface {
@@ -19,7 +20,7 @@ const useClientData = (): ClientDataInterface => {
   const [cacheMap, setCacheMap] = useState<CacheMapType>({});
 
   const rebuildCacheData = useCallback(() => {
-
+    console.log('rebuildCacheData');
   }, []);
 
   const setNodeValue = useCallback((list: CacheTreeType[], key: string, value: string): CacheTreeType[] => {

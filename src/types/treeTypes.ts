@@ -16,8 +16,7 @@ export type CacheTreeType = {
   title: string;
 }
 
-export type CacheMapItemType = {
-  allChildren: string[];
-  children: string[];
-  parentId: string;
+export interface DbTreeTypeAdditional extends DbTreeType {
+  level: number;
+  parentId: string | null;
 }

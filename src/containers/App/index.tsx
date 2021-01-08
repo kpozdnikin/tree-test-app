@@ -1,17 +1,16 @@
 // Copyright 2020 @kpozdnikin
-import { DbTreeType } from 'types/treeTypes';
-import { dbTree } from 'mocks/dbTree';
 
-import React, { FC, memo, useState } from 'react';
+import React, { FC, memo } from 'react';
 
 import DBTreeView from 'components/DBTreeView';
 import CachedTreeView from 'components/CachedTreeView';
 import useClientData from 'hooks/useClientData';
+import useServerData from 'hooks/useServerData';
 
 import './styles.less';
 
 const App: FC = () => {
-  const [dbData] = useState<DbTreeType>(dbTree);
+  const { dbData } = useServerData();
   const { cacheData, deleteCacheTreeNode, updateCacheTreeNodeName } = useClientData();
 
   console.log('cacheData', cacheData);
