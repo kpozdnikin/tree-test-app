@@ -24,6 +24,7 @@
   "paths": {
     "containers/*": ["src/containers/*"],
     "components/*": ["src/components/*"],
+    "hooks/*": ["src/hooks/*"],
     "mocks/*": ["src/mocks/*"],
     "types/*": ["src/types/*"]
   },

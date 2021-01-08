@@ -15,3 +15,9 @@ export type CacheTreeType = {
   key: string;
   title: string;
 }
+
+export type CacheMapItemType = {
+  allChildren: string[];
+  children: string[];
+  parentId: string;
+}
