@@ -2,6 +2,7 @@
 
 export type DbTreeType = {
   attributes: {
+    deleted: string;
     value: string;
   };
   children: DbTreeType[];

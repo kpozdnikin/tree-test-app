@@ -4,31 +4,37 @@ import { DbTreeType } from 'types/treeTypes';
 
 export const dbTree: DbTreeType = {
   attributes: {
+    deleted: 'false',
     value: 'Root'
   },
   children: [
     {
       attributes: {
+        deleted: 'false',
         value: 'Node1'
       },
       children: [
         {
           attributes: {
+            deleted: 'false',
             value: 'Node2'
           },
           children: [
             {
               attributes: {
+                deleted: 'false',
                 value: 'Node4'
               },
               children: [
                 {
                   attributes: {
+                    deleted: 'false',
                     value: 'Node7'
                   },
                   children: [
                     {
                       attributes: {
+                        deleted: 'false',
                         value: 'Node9'
                       },
                       children: [],
@@ -41,11 +47,13 @@ export const dbTree: DbTreeType = {
                 },
                 {
                   attributes: {
+                    deleted: 'false',
                     value: 'Node8'
                   },
                   children: [
                     {
                       attributes: {
+                        deleted: 'true',
                         value: 'Node10'
                       },
                       children: [],
@@ -66,21 +74,25 @@ export const dbTree: DbTreeType = {
         },
         {
           attributes: {
+            deleted: 'false',
             value: 'Node3'
           },
           children: [
             {
               attributes: {
+                deleted: 'false',
                 value: 'Node5'
               },
               children: [
                 {
                   attributes: {
+                    deleted: 'false',
                     value: 'Node6'
                   },
                   children: [
                     {
                       attributes: {
+                        deleted: 'false',
                         value: 'Node15'
                       },
                       children: [],
@@ -101,21 +113,25 @@ export const dbTree: DbTreeType = {
         },
         {
           attributes: {
+            deleted: 'false',
             value: 'Node11'
           },
           children: [
             {
               attributes: {
+                deleted: 'false',
                 value: 'Node12'
               },
               children: [
                 {
                   attributes: {
+                    deleted: 'false',
                     value: 'Node13'
                   },
                   children: [
                     {
                       attributes: {
+                        deleted: 'false',
                         value: 'Node14'
                       },
                       children: [],

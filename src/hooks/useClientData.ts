@@ -7,6 +7,7 @@ import { cacheTree } from '../mocks/cacheTree';
 
 interface ClientDataInterface {
   cacheData: CacheTreeType[];
+  cacheMap: CacheMapType;
   deleteCacheTreeNode: (key: string) => void;
   updateCacheTreeNodeName: (key: string, value: string) => void;
 }
@@ -67,6 +68,7 @@ const useClientData = (): ClientDataInterface => {
 
   return {
     cacheData,
+    cacheMap,
     deleteCacheTreeNode,
     updateCacheTreeNodeName
   };

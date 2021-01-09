@@ -7,11 +7,12 @@ import { dbTree } from 'mocks/dbTree';
 
 interface ClientDataInterface {
   dbData: DbTreeType;
+  dbMap: DbMapType;
 }
 
 const useServerData = (): ClientDataInterface => {
   const [dbData] = useState<DbTreeType>(dbTree);
-  const [cacheMap, setCacheMap] = useState<DbMapType>({});
+  const [dbMap, setDbMap] = useState<DbMapType>({});
 
   const newItem = useCallback((dbItem: DbTreeTypeAdditional): DbMapItemType => {
     return {
@@ -73,27 +74,28 @@ const useServerData = (): ClientDataInterface => {
   const rebuildCacheData = useCallback(() => {
     const newCacheMap: DbMapType = {};
     // если дерево глубокое - используем обход в ширину
-    // @todo - если дерево широкое - используем обход в глубину
 
     bfs((item) => {
       newCacheMap[item.id] = newItem(item);
     });
 
+    // @todo - если дерево широкое - используем обход в глубину
     /* dfs((item) => {
       newCacheMap[item.id] = newItem(item);
     }); */
 
-    setCacheMap(newCacheMap);
+    setDbMap(newCacheMap);
   }, [bfs, newItem]);
 
   useEffect(() => {
     rebuildCacheData();
   }, [rebuildCacheData]);
 
-  console.log('cacheMap', cacheMap);
+  console.log('dbMap', dbMap);
 
   return {
-    dbData
+    dbData,
+    dbMap
   };
 };
 

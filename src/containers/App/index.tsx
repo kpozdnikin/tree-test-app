@@ -1,4 +1,5 @@
 // Copyright 2020 @kpozdnikin
+import { DbMapType } from 'types/mapTypes';
 
 import React, { FC, memo } from 'react';
 
@@ -10,8 +11,8 @@ import useServerData from 'hooks/useServerData';
 import './styles.less';
 
 const App: FC = () => {
-  const { dbData } = useServerData();
-  const { cacheData, deleteCacheTreeNode, updateCacheTreeNodeName } = useClientData();
+  const { dbData, dbMap } = useServerData();
+  const { cacheData, cacheMap, deleteCacheTreeNode, updateCacheTreeNodeName } = useClientData();
 
   console.log('cacheData', cacheData);
 
