@@ -19,8 +19,13 @@ const DBTreeView: FC<DbTreeViewProps> = (props) => {
   }, []);
 
   const renderRectSvgNode = useCallback(({ nodeDatum }: CustomNodeElementProps) => (
-    <g className={nodeDatum.attributes && nodeDatum.attributes.deleted === 'true' ? 'tree-node disabled' : 'tree-node'}>
-      <circle r='15' />
+    <g
+      className={nodeDatum.attributes && nodeDatum.attributes.deleted === 'true' ? 'tree-node disabled' : 'tree-node'}
+      onClick={onNodeClick.bind(null, nodeDatum)}
+    >
+      <circle
+        r='15'
+      />
       <g className='rd3t-label'>
         <text
           className='rd3t-label__title'
@@ -35,7 +40,7 @@ const DBTreeView: FC<DbTreeViewProps> = (props) => {
         </text>
       </g>
     </g>
-  ), []);
+  ), [onNodeClick]);
 
   return (
     <div
