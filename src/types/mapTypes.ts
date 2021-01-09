@@ -16,7 +16,7 @@ export type CacheMapItemType = {
   allChildren: string[];
   children: string[];
   deleted?: boolean;
-  parentId: string;
+  parentId: string | null;
 }
 
 export type CacheMapType = {

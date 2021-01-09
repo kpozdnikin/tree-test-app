@@ -1,6 +1,6 @@
 // Copyright 2020 @kpozdnikin
 import { DbTreeType } from 'types/treeTypes';
-import { CustomNodeElementProps } from 'react-d3-tree/lib/types/common';
+import { CustomNodeElementProps, TreeNodeDatum } from 'react-d3-tree/lib/types/common';
 
 import React, { FC, memo, useCallback } from 'react';
 import Tree from 'react-d3-tree';
@@ -8,15 +8,22 @@ import Tree from 'react-d3-tree';
 import './styles.less';
 
 interface DbTreeViewProps {
+  addNodeToCache: (node: TreeNodeDatum) => void;
   dbData: DbTreeType;
 }
 
 const DBTreeView: FC<DbTreeViewProps> = (props) => {
-  const { dbData } = props;
+  const { addNodeToCache, dbData } = props;
 
-  const onNodeClick = useCallback((node) => {
-    console.log('onNodeClick', node);
-  }, []);
+  const onNodeClick = useCallback((node: TreeNodeDatum) => {
+    if (node.attributes && node.attributes.deleted === 'true') {
+      if (confirm('Вы хотите добавить удаленную ноду? Ее нельзя будет изменить.')) {
+        addNodeToCache(node);
+      }
+    } else {
+      addNodeToCache(node);
+    }
+  }, [addNodeToCache]);
 
   const renderRectSvgNode = useCallback(({ nodeDatum }: CustomNodeElementProps) => (
     <g

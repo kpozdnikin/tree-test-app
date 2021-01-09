@@ -9,6 +9,7 @@ interface ClientDataInterface {
   cacheData: CacheTreeType[];
   cacheMap: CacheMapType;
   deleteCacheTreeNode: (key: string) => void;
+  setCacheMap: (cacheMap: CacheMapType) => void;
   updateCacheTreeNodeName: (key: string, value: string) => void;
 }
 
@@ -70,6 +71,7 @@ const useClientData = (): ClientDataInterface => {
     cacheData,
     cacheMap,
     deleteCacheTreeNode,
+    setCacheMap,
     updateCacheTreeNodeName
   };
 };
