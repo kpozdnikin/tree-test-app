@@ -8,12 +8,15 @@ interface ClientDataInterface {
   dbData: DbTreeType;
   dbMap: DbMapType;
   maxKey: number;
+  rebuildDbTreeByDbMap: (dbMap: DbMapType) => void;
+  setDbMap: (dbMap: DbMapType) => void;
 }
 
 const useServerData = (dbTree: DbTreeType): ClientDataInterface => {
-  const [dbData] = useState<DbTreeType>(dbTree);
+  const [dbData, setDbData] = useState<DbTreeType>(dbTree);
   const [dbMap, setDbMap] = useState<DbMapType>({});
   const [maxKey, setMaxKey] = useState<number>(0);
+  const [rootKey] = useState<string>(dbTree.id);
 
   const newItem = useCallback((dbItem: DbTreeTypeAdditional): DbMapItemType => {
     return {
@@ -81,7 +84,6 @@ const useServerData = (dbTree: DbTreeType): ClientDataInterface => {
     // если дерево глубокое - используем обход в ширину
 
     bfs((item) => {
-      console.log('item.id', item.id);
       newMaxKey = parseInt(item.id.replace('node', ''), 10);
 
       if (newMaxKey > prevMaxKey) {
@@ -101,16 +103,35 @@ const useServerData = (dbTree: DbTreeType): ClientDataInterface => {
     setDbMap(newCacheMap);
   }, [bfs, maxKey, newItem]);
 
+  const fillDbByMap = useCallback((newDbMap: DbMapType, key: string): DbTreeType => {
+    return {
+      attributes: {
+        deleted: newDbMap[key].deleted.toString(),
+        value: newDbMap[key].value
+      },
+      children: newDbMap[key].children.map((childId: string) => fillDbByMap(newDbMap, childId)),
+      id: key,
+      name: newDbMap[key].value
+    };
+  }, []);
+
+  const rebuildDbTreeByDbMap = useCallback((newDbMap: DbMapType) => {
+    const newDbData: DbTreeType = fillDbByMap(newDbMap, rootKey);
+
+    setDbData(newDbData);
+  }, [fillDbByMap, rootKey]);
+
   useEffect(() => {
     rebuildCacheData();
-  }, [rebuildCacheData]);
-
-  console.log('dbMap', dbMap);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return {
     dbData,
     dbMap,
-    maxKey
+    maxKey,
+    rebuildDbTreeByDbMap,
+    setDbMap
   };
 };
 

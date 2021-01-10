@@ -93,9 +93,8 @@ const CachedTreeView: FC<CachedTreeViewProps> = (props) => {
 
   const onAddNewItem = useCallback(() => {
     selectedNode && addNewItem(selectedNode.key);
-  }, [addNewItem, selectedNode]);
-
-  console.log('cacheData', cacheData);
+    setSomethingChanged(true);
+  }, [addNewItem, selectedNode, setSomethingChanged]);
 
   // @todo optimize rendering to avoid full rerender of tree by rebuilding flag
   return (

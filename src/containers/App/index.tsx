@@ -1,6 +1,6 @@
 // Copyright 2020 @kpozdnikin
 import { DbTreeType } from 'types/treeTypes';
-import { CacheMapType, CacheMapItemType, DbMapItemType, minMapType } from 'types/mapTypes';
+import { CacheMapType, CacheMapItemType, DbMapItemType, minMapType, DbMapType } from 'types/mapTypes';
 import { TreeNodeDatum } from 'react-d3-tree/lib/types/common';
 
 import React, { FC, memo, useCallback, useEffect, useState } from 'react';
@@ -14,12 +14,10 @@ import { dbTree } from 'mocks/dbTree';
 import './styles.less';
 
 const App: FC = () => {
-  const { dbData, dbMap, maxKey } = useServerData(dbTree);
+  const { dbData, dbMap, maxKey, rebuildDbTreeByDbMap, setDbMap } = useServerData(dbTree);
   const { cacheData, cacheMap, deleteCacheTreeNode, rebuilding, setCacheMap, updateCacheTreeNodeName } = useClientData();
   const [somethingChanged, setSomethingChanged] = useState<boolean>(false);
   const [cacheMaxKey, setCacheMaxKey] = useState<number>(0);
-
-  console.log('cacheMap', cacheMap);
 
   const findNodeInParents = useCallback((dbMapNode: DbMapItemType, cacheMapNode: CacheMapItemType): number | null => {
     let difference = 0;
@@ -103,23 +101,53 @@ const App: FC = () => {
   }, [cacheMap, dbMap, findNodeInParents, setCacheMap, setSomethingChanged]);
 
   const applyChangesToDb = useCallback(() => {
-    console.log('applyChangesToDb');
-  }, []);
+    const newDbMap: DbMapType = { ...dbMap };
+
+    console.log('newDbMap', newDbMap, 'cacheMap', cacheMap);
+    Object.keys(cacheMap).forEach((cacheMapId) => {
+      if (newDbMap[cacheMapId]) {
+        newDbMap[cacheMapId].value = cacheMap[cacheMapId].value;
+        newDbMap[cacheMapId].deleted = cacheMap[cacheMapId].deleted;
+        newDbMap[cacheMapId].children = [
+          ...newDbMap[cacheMapId].children,
+          ...cacheMap[cacheMapId].children
+        ];
+      } else {
+        newDbMap[cacheMapId] = {
+          children: cacheMap[cacheMapId].children,
+          deleted: cacheMap[cacheMapId].deleted,
+          id: cacheMapId,
+          level: cacheMap[cacheMapId].level,
+          parentId: cacheMap[cacheMapId].parentId,
+          value: cacheMap[cacheMapId].value
+        };
+      }
+    });
+
+    setDbMap(newDbMap);
+    // это действие более тяжелое, его можно выполнять асинхронно на сервере
+    rebuildDbTreeByDbMap(newDbMap);
+  }, [cacheMap, dbMap, setDbMap, rebuildDbTreeByDbMap]);
 
   const resetChangesFromDb = useCallback(() => {
-    console.log('resetChangesFromDb');
     setCacheMap({});
   }, [setCacheMap]);
 
+  const fillAllChildren = useCallback((item: CacheMapItemType, newChildId: string) => {
+    item.allChildren = [...item.allChildren, newChildId];
+
+    if (item.parentId && cacheMap[item.parentId]) {
+      fillAllChildren(cacheMap[item.parentId], newChildId);
+    }
+  }, [cacheMap]);
+
   const addNewNodeToCache = useCallback((key: string) => {
-    console.log('addNewNodeToCache');
     // 1. Generate new key
     const newKey = `node${cacheMaxKey + 1}`;
     // 2. add new key to children of parent where adding new element
     // 3. Add new element
     const newCacheMap = { ...cacheMap };
 
-    newCacheMap[key].allChildren = [...newCacheMap[key].allChildren, newKey];
     newCacheMap[key].children = [...newCacheMap[key].children, newKey];
     newCacheMap[newKey] = {
       allChildren: [],
@@ -131,16 +159,18 @@ const App: FC = () => {
       value: `Node${cacheMaxKey + 1}`
     };
 
+    fillAllChildren(newCacheMap[key], newKey);
+
     setCacheMap(newCacheMap);
     // 4. Save new key index
     setCacheMaxKey(cacheMaxKey + 1);
-  }, [cacheMap, cacheMaxKey, setCacheMap]);
+  }, [cacheMap, cacheMaxKey, fillAllChildren, setCacheMap]);
 
   useEffect(() => {
     setCacheMaxKey(maxKey);
   }, [maxKey]);
 
-  // console.log('cacheData', cacheData, 'rebuilding', rebuilding);
+  console.log('dbData', dbData, 'dbMap', dbMap, 'cacheMap', cacheMap);
 
   return (
     <div className='App'>
