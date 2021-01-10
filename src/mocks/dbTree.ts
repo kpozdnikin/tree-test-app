@@ -53,7 +53,7 @@ export const dbTree: DbTreeType = {
                   children: [
                     {
                       attributes: {
-                        deleted: 'true',
+                        deleted: 'false',
                         value: 'Node10'
                       },
                       children: [],

@@ -3,21 +3,23 @@ import { DbTreeType } from 'types/treeTypes';
 import { CacheMapType, CacheMapItemType, DbMapItemType, minMapType } from 'types/mapTypes';
 import { TreeNodeDatum } from 'react-d3-tree/lib/types/common';
 
-import React, { FC, memo, useCallback, useState } from 'react';
+import React, { FC, memo, useCallback, useEffect, useState } from 'react';
 
 import DBTreeView from 'components/DBTreeView';
 import CachedTreeView from 'components/CachedTreeView';
 import useClientData from 'hooks/useClientData';
 import useServerData from 'hooks/useServerData';
+import { dbTree } from 'mocks/dbTree';
 
 import './styles.less';
 
 const App: FC = () => {
-  const { dbData, dbMap } = useServerData();
+  const { dbData, dbMap, maxKey } = useServerData(dbTree);
   const { cacheData, cacheMap, deleteCacheTreeNode, rebuilding, setCacheMap, updateCacheTreeNodeName } = useClientData();
   const [somethingChanged, setSomethingChanged] = useState<boolean>(false);
+  const [cacheMaxKey, setCacheMaxKey] = useState<number>(0);
 
-  // console.log('cacheMap', cacheMap);
+  console.log('cacheMap', cacheMap);
 
   const findNodeInParents = useCallback((dbMapNode: DbMapItemType, cacheMapNode: CacheMapItemType): number | null => {
     let difference = 0;
@@ -109,6 +111,35 @@ const App: FC = () => {
     setCacheMap({});
   }, [setCacheMap]);
 
+  const addNewNodeToCache = useCallback((key: string) => {
+    console.log('addNewNodeToCache');
+    // 1. Generate new key
+    const newKey = `node${cacheMaxKey + 1}`;
+    // 2. add new key to children of parent where adding new element
+    // 3. Add new element
+    const newCacheMap = { ...cacheMap };
+
+    newCacheMap[key].allChildren = [...newCacheMap[key].allChildren, newKey];
+    newCacheMap[key].children = [...newCacheMap[key].children, newKey];
+    newCacheMap[newKey] = {
+      allChildren: [],
+      children: [],
+      deleted: false,
+      id: newKey,
+      level: cacheMap[key].level + 1,
+      parentId: key,
+      value: `Node${cacheMaxKey + 1}`
+    };
+
+    setCacheMap(newCacheMap);
+    // 4. Save new key index
+    setCacheMaxKey(cacheMaxKey + 1);
+  }, [cacheMap, cacheMaxKey, setCacheMap]);
+
+  useEffect(() => {
+    setCacheMaxKey(maxKey);
+  }, [maxKey]);
+
   // console.log('cacheData', cacheData, 'rebuilding', rebuilding);
 
   return (
@@ -120,9 +151,11 @@ const App: FC = () => {
           dbData={dbData}
         />
         <CachedTreeView
+          addNewItem={addNewNodeToCache}
           applyChanges={applyChangesToDb}
           cacheData={cacheData}
           deleteTreeNode={deleteCacheTreeNode}
+          rebuilding={rebuilding}
           resetChanges={resetChangesFromDb}
           setSomethingChanged={setSomethingChanged}
           somethingChanged={somethingChanged}

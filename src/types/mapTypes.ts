@@ -5,7 +5,7 @@ export type minMapType = {
   parentId: string | null;
 }
 
-export interface DbMapItemType extends minMapType {
+export type DbMapItemType = minMapType & {
   children: string[];
   deleted: boolean;
   level: number;
@@ -20,7 +20,7 @@ export type DbMapType = {
   [key: string]: DbMapItemType;
 }
 
-export interface CacheMapItemType extends DbMapItemType {
+export type CacheMapItemType = DbMapItemType & {
   allChildren: string[];
 }
 

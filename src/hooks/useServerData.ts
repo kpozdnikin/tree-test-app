@@ -3,16 +3,17 @@ import { DbTreeType, DbTreeTypeAdditional } from 'types/treeTypes';
 import { DbMapItemType, DbMapType } from 'types/mapTypes';
 
 import { useCallback, useEffect, useState } from 'react';
-import { dbTree } from 'mocks/dbTree';
 
 interface ClientDataInterface {
   dbData: DbTreeType;
   dbMap: DbMapType;
+  maxKey: number;
 }
 
-const useServerData = (): ClientDataInterface => {
+const useServerData = (dbTree: DbTreeType): ClientDataInterface => {
   const [dbData] = useState<DbTreeType>(dbTree);
   const [dbMap, setDbMap] = useState<DbMapType>({});
+  const [maxKey, setMaxKey] = useState<number>(0);
 
   const newItem = useCallback((dbItem: DbTreeTypeAdditional): DbMapItemType => {
     return {
@@ -75,9 +76,18 @@ const useServerData = (): ClientDataInterface => {
 
   const rebuildCacheData = useCallback(() => {
     const newCacheMap: DbMapType = {};
+    let newMaxKey = maxKey;
+    let prevMaxKey = maxKey;
     // если дерево глубокое - используем обход в ширину
 
     bfs((item) => {
+      console.log('item.id', item.id);
+      newMaxKey = parseInt(item.id.replace('node', ''), 10);
+
+      if (newMaxKey > prevMaxKey) {
+        prevMaxKey = newMaxKey;
+      }
+
       newCacheMap[item.id] = newItem(item);
     });
 
@@ -86,18 +96,21 @@ const useServerData = (): ClientDataInterface => {
       newCacheMap[item.id] = newItem(item);
     }); */
 
+    setMaxKey(prevMaxKey);
+
     setDbMap(newCacheMap);
-  }, [bfs, newItem]);
+  }, [bfs, maxKey, newItem]);
 
   useEffect(() => {
     rebuildCacheData();
   }, [rebuildCacheData]);
 
-  // console.log('dbMap', dbMap);
+  console.log('dbMap', dbMap);
 
   return {
     dbData,
-    dbMap
+    dbMap,
+    maxKey
   };
 };
 
