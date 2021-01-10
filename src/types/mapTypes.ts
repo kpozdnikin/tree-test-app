@@ -12,10 +12,6 @@ export type DbMapItemType = minMapType & {
   value: string;
 }
 
-export type minDbMapType = {
-  [key: string]: minMapType;
-}
-
 export type DbMapType = {
   [key: string]: DbMapItemType;
 }

@@ -30,7 +30,7 @@ const useServerData = (dbTree: DbTreeType): ClientDataInterface => {
   }, []);
 
   // обход в глубину
-  const dfs = useCallback((callback: (item: DbTreeTypeAdditional) => void) => {
+  /* const dfs = useCallback((callback: (item: DbTreeTypeAdditional) => void) => {
     recursion({
       ...dbData,
       level: 0,
@@ -48,7 +48,7 @@ const useServerData = (dbTree: DbTreeType): ClientDataInterface => {
 
       callback(node);
     }
-  }, [dbData]);
+  }, [dbData]); */
 
   // обход в ширину
   const bfs = useCallback((callback: (item: DbTreeTypeAdditional) => void) => {

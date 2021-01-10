@@ -105,29 +105,47 @@ const App: FC = () => {
     setSomethingChanged(true);
   }, [cacheMap, dbMap, findNodeInParents, setCacheMap, setSomethingChanged]);
 
+  const setChildrenDeleted = useCallback((newDbMap: DbMapType, childIds: string[]) => {
+    childIds.forEach((childId: string) => {
+      newDbMap[childId].deleted = true;
+
+      if (newDbMap[childId].children.length) {
+        setChildrenDeleted(newDbMap, newDbMap[childId].children);
+      }
+    });
+  }, []);
+
   const applyChangesToDb = useCallback(() => {
     const newDbMap: DbMapType = { ...dbMap };
 
     Object.keys(cacheMap).forEach((cacheMapId) => {
+      const cacheMapItem = cacheMap[cacheMapId];
+
       if (newDbMap[cacheMapId]) {
         const allChildrenData: {[key: string]: boolean} = {};
+        const dbMapItem = newDbMap[cacheMapId];
 
-        newDbMap[cacheMapId].children.concat(cacheMap[cacheMapId].children).forEach((item) => {
+        dbMapItem.children.concat(cacheMapItem.children).forEach((item) => {
           allChildrenData[item] = true;
         });
         const allChildren: string[] = Object.keys(allChildrenData);
 
-        newDbMap[cacheMapId].value = cacheMap[cacheMapId].value;
-        newDbMap[cacheMapId].deleted = cacheMap[cacheMapId].deleted;
-        newDbMap[cacheMapId].children = allChildren;
+        dbMapItem.value = cacheMapItem.value;
+        dbMapItem.deleted = cacheMapItem.deleted;
+        dbMapItem.children = allChildren;
+
+        // если элемент был удален - проставляем удаление у всех потомков
+        if (dbMapItem.deleted && dbMapItem.children) {
+          setChildrenDeleted(newDbMap, dbMapItem.children);
+        }
       } else {
         newDbMap[cacheMapId] = {
-          children: cacheMap[cacheMapId].children,
-          deleted: cacheMap[cacheMapId].deleted,
+          children: cacheMapItem.children,
+          deleted: cacheMapItem.deleted,
           id: cacheMapId,
-          level: cacheMap[cacheMapId].level,
-          parentId: cacheMap[cacheMapId].parentId,
-          value: cacheMap[cacheMapId].value
+          level: cacheMapItem.level,
+          parentId: cacheMapItem.parentId,
+          value: cacheMapItem.value
         };
       }
     });
@@ -135,7 +153,7 @@ const App: FC = () => {
     setDbMap(newDbMap);
     // это действие более тяжелое, его можно выполнять асинхронно на сервере
     rebuildDbTreeByDbMap(newDbMap);
-  }, [cacheMap, dbMap, setDbMap, rebuildDbTreeByDbMap]);
+  }, [cacheMap, dbMap, setDbMap, setChildrenDeleted, rebuildDbTreeByDbMap]);
 
   const resetChangesFromDb = useCallback(() => {
     setCacheMap({});
