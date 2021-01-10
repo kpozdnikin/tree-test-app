@@ -10,8 +10,12 @@ import Button from 'antd/lib/button';
 import './styles.less';
 
 interface CachedTreeViewProps {
+  applyChanges: () => void;
   cacheData: CacheTreeType[];
   deleteTreeNode: (key: string) => void;
+  resetChanges: () => void;
+  somethingChanged: boolean;
+  setSomethingChanged: (changed: boolean) => void;
   updateTreeNodeName: (key: string, value: string) => void;
 }
 
@@ -30,7 +34,7 @@ type InfoType = {
  */
 
 const CachedTreeView: FC<CachedTreeViewProps> = (props) => {
-  const { cacheData, deleteTreeNode, updateTreeNodeName } = props;
+  const { applyChanges, cacheData, deleteTreeNode, resetChanges, setSomethingChanged, somethingChanged, updateTreeNodeName } = props;
   const [selectedNode, setSelectedNode] = useState<CacheTreeType>();
   const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
   const [editMode, setEditMode] = useState<boolean>(false);
@@ -42,7 +46,6 @@ const CachedTreeView: FC<CachedTreeViewProps> = (props) => {
   }, []);
 
   const onSelectNode = useCallback((keys: React.Key[], info: InfoType) => {
-    console.log('Trigger Select', info.node);
     clearSelected();
     setSelectedNode(info.node);
     const { key } = info.node as CacheTreeType;
@@ -51,14 +54,13 @@ const CachedTreeView: FC<CachedTreeViewProps> = (props) => {
   }, [clearSelected]);
 
   const onValueChange = useCallback((values: { value: string }) => {
-    console.log('onValueChange', values);
-
     if (selectedNode) {
       updateTreeNodeName(selectedNode.key, values.value);
     }
 
     clearSelected();
-  }, [clearSelected, selectedNode, updateTreeNodeName]);
+    setSomethingChanged(true);
+  }, [clearSelected, setSomethingChanged, selectedNode, updateTreeNodeName]);
 
   const onToggleEditMode = useCallback(() => {
     setEditMode((prevState) => !prevState);
@@ -68,7 +70,19 @@ const CachedTreeView: FC<CachedTreeViewProps> = (props) => {
     if (selectedNode) {
       deleteTreeNode(selectedNode.key);
     }
-  }, [deleteTreeNode, selectedNode]);
+
+    setSomethingChanged(true);
+  }, [deleteTreeNode, setSomethingChanged, selectedNode]);
+
+  const onApplyChanges = useCallback(() => {
+    applyChanges();
+    setSomethingChanged(false);
+  }, [applyChanges, setSomethingChanged]);
+
+  const onResetChanges = useCallback(() => {
+    resetChanges();
+    setSomethingChanged(false);
+  }, [resetChanges, setSomethingChanged]);
 
   console.log('cacheData', cacheData);
 
@@ -113,8 +127,18 @@ const CachedTreeView: FC<CachedTreeViewProps> = (props) => {
         >
           a
         </Button>
-        <Button>Apply</Button>
-        <Button>Reset</Button>
+        <Button
+          disabled={!somethingChanged}
+          onClick={onApplyChanges}
+        >
+          Apply
+        </Button>
+        <Button
+          disabled={!somethingChanged}
+          onClick={onResetChanges}
+        >
+          Reset
+        </Button>
       </div>
     </div>
   );

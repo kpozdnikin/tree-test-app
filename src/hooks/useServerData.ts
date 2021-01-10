@@ -93,7 +93,7 @@ const useServerData = (): ClientDataInterface => {
     rebuildCacheData();
   }, [rebuildCacheData]);
 
-  console.log('dbMap', dbMap);
+  // console.log('dbMap', dbMap);
 
   return {
     dbData,

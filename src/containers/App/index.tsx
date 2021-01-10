@@ -1,9 +1,9 @@
 // Copyright 2020 @kpozdnikin
 import { DbTreeType } from 'types/treeTypes';
-import { CacheMapType, CacheMapItemType, DbMapItemType, minDbMapType, minMapType } from 'types/mapTypes';
+import { CacheMapType, CacheMapItemType, DbMapItemType, minMapType } from 'types/mapTypes';
 import { TreeNodeDatum } from 'react-d3-tree/lib/types/common';
 
-import React, { FC, memo, useCallback } from 'react';
+import React, { FC, memo, useCallback, useState } from 'react';
 
 import DBTreeView from 'components/DBTreeView';
 import CachedTreeView from 'components/CachedTreeView';
@@ -15,8 +15,9 @@ import './styles.less';
 const App: FC = () => {
   const { dbData, dbMap } = useServerData();
   const { cacheData, cacheMap, deleteCacheTreeNode, rebuilding, setCacheMap, updateCacheTreeNodeName } = useClientData();
+  const [somethingChanged, setSomethingChanged] = useState<boolean>(false);
 
-  console.log('cacheMap', cacheMap);
+  // console.log('cacheMap', cacheMap);
 
   const findNodeInParents = useCallback((dbMapNode: DbMapItemType, cacheMapNode: CacheMapItemType): number | null => {
     let difference = 0;
@@ -96,9 +97,19 @@ const App: FC = () => {
     };
 
     setCacheMap(newCacheMap);
-  }, [cacheMap, dbMap, findNodeInParents, setCacheMap]);
+    setSomethingChanged(true);
+  }, [cacheMap, dbMap, findNodeInParents, setCacheMap, setSomethingChanged]);
 
-  console.log('cacheData', cacheData, 'rebuilding', rebuilding);
+  const applyChangesToDb = useCallback(() => {
+    console.log('applyChangesToDb');
+  }, []);
+
+  const resetChangesFromDb = useCallback(() => {
+    console.log('resetChangesFromDb');
+    setCacheMap({});
+  }, [setCacheMap]);
+
+  // console.log('cacheData', cacheData, 'rebuilding', rebuilding);
 
   return (
     <div className='App'>
@@ -108,13 +119,15 @@ const App: FC = () => {
           addNodeToCache={addNodeToCache}
           dbData={dbData}
         />
-        {!rebuilding &&
         <CachedTreeView
+          applyChanges={applyChangesToDb}
           cacheData={cacheData}
           deleteTreeNode={deleteCacheTreeNode}
+          resetChanges={resetChangesFromDb}
+          setSomethingChanged={setSomethingChanged}
+          somethingChanged={somethingChanged}
           updateTreeNodeName={updateCacheTreeNodeName}
         />
-        }
       </div>
     </div>
   );
