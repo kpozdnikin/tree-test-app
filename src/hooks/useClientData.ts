@@ -18,10 +18,10 @@ interface ClientDataInterface {
 const useClientData = (): ClientDataInterface => {
   const [cacheData, setCacheData] = useState<CacheTreeType[]>(cacheTree);
   const [cacheMap, setCacheMap] = useState<CacheMapType>({});
-  const [rebuilding, setRebuilding] = useState<boolean>(false);
+  const [rebuilding, setRebuilding] = useState<boolean>(true);
 
-  const addItemToTheThree = useCallback((cacheItemId: string, children: CacheTreeType[]) => {
-    if (cacheMap[cacheItemId].deleted) {
+  const addItemToTheThree = useCallback((cacheItemId: string, children: CacheTreeType[], alreadyAdded: {[key: string]: boolean}) => {
+    if (cacheMap[cacheItemId].deleted || alreadyAdded[cacheItemId]) {
       return;
     }
 
@@ -33,30 +33,29 @@ const useClientData = (): ClientDataInterface => {
     };
 
     if (cacheMap[cacheItemId].children.length) {
-      cacheMap[cacheItemId].children.forEach((childId) => addItemToTheThree(childId, newCacheTreeItem.children));
+      cacheMap[cacheItemId].children.forEach((childId) => addItemToTheThree(childId, newCacheTreeItem.children, alreadyAdded));
     }
 
     children.push(newCacheTreeItem);
+    alreadyAdded[cacheItemId] = true;
   }, [cacheMap]);
 
   const rebuildCacheData = useCallback(() => {
     setRebuilding(true);
     const newCacheData: CacheTreeType[] = [];
+    const alreadyAdded: {[key: string]: boolean} = {};
 
     Object.keys(cacheMap).forEach((cacheItemId) => {
       const cacheItemParent = cacheMap[cacheItemId].parentId;
 
-      console.log('cacheMap[cacheItemId]', cacheMap[cacheItemId]);
-
       if (!cacheItemParent || !cacheMap[cacheItemParent]) {
-        addItemToTheThree(cacheItemId, newCacheData);
+        addItemToTheThree(cacheItemId, newCacheData, alreadyAdded);
       }
     });
-
     setCacheData(newCacheData);
     setTimeout(() => {
       setRebuilding(false);
-    }, 100);
+    });
   }, [addItemToTheThree, cacheMap]);
 
   const setNodeValue = useCallback((list: CacheTreeType[], key: string, value: string): CacheTreeType[] => {
