@@ -17,9 +17,7 @@ const DBTreeView: FC<DbTreeViewProps> = (props) => {
 
   const onNodeClick = useCallback((node: TreeNodeDatum) => {
     if (node.attributes && node.attributes.deleted === 'true') {
-      if (confirm('Вы хотите добавить удаленную ноду? Ее нельзя будет изменить.')) {
-        addNodeToCache(node);
-      }
+      alert('Удаленную ноду нельзя изменить.');
     } else {
       addNodeToCache(node);
     }

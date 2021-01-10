@@ -17,6 +17,7 @@ const useServerData = (): ClientDataInterface => {
   const newItem = useCallback((dbItem: DbTreeTypeAdditional): DbMapItemType => {
     return {
       children: dbItem.children.map((child: DbTreeType) => child.id),
+      deleted: dbItem.attributes.deleted === 'true',
       id: dbItem.id,
       level: dbItem.level,
       parentId: dbItem.parentId,

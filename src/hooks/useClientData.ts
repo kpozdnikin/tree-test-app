@@ -1,9 +1,8 @@
 // Copyright 2020 @kpozdnikin
-import { TreeNodeDatum } from 'react-d3-tree/lib/types/common';
-import { CacheTreeType, DbTreeType } from 'types/treeTypes';
-import { CacheMapItemType } from 'types/mapTypes';
+import { CacheTreeType } from 'types/treeTypes';
+import { CacheMapType } from 'types/mapTypes';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { cacheTree } from 'mocks/cacheTree';
 
@@ -11,21 +10,54 @@ interface ClientDataInterface {
   cacheData: CacheTreeType[];
   cacheMap: CacheMapType;
   deleteCacheTreeNode: (key: string) => void;
+  rebuilding: boolean;
   setCacheMap: (cacheMap: CacheMapType) => void;
   updateCacheTreeNodeName: (key: string, value: string) => void;
-}
-
-type CacheMapType = {
-  [key: string]: CacheMapItemType;
 }
 
 const useClientData = (): ClientDataInterface => {
   const [cacheData, setCacheData] = useState<CacheTreeType[]>(cacheTree);
   const [cacheMap, setCacheMap] = useState<CacheMapType>({});
+  const [rebuilding, setRebuilding] = useState<boolean>(false);
+
+  const addItemToTheThree = useCallback((cacheItemId: string, children: CacheTreeType[]) => {
+    if (cacheMap[cacheItemId].deleted) {
+      return;
+    }
+
+    const newCacheTreeItem: CacheTreeType = {
+      children: [],
+      isLeaf: true,
+      key: cacheItemId,
+      title: cacheMap[cacheItemId].value
+    };
+
+    if (cacheMap[cacheItemId].children.length) {
+      cacheMap[cacheItemId].children.forEach((childId) => addItemToTheThree(childId, newCacheTreeItem.children));
+    }
+
+    children.push(newCacheTreeItem);
+  }, [cacheMap]);
 
   const rebuildCacheData = useCallback(() => {
-    console.log('rebuildCacheData');
-  }, []);
+    setRebuilding(true);
+    const newCacheData: CacheTreeType[] = [];
+
+    Object.keys(cacheMap).forEach((cacheItemId) => {
+      const cacheItemParent = cacheMap[cacheItemId].parentId;
+
+      console.log('cacheMap[cacheItemId]', cacheMap[cacheItemId]);
+
+      if (!cacheItemParent || !cacheMap[cacheItemParent]) {
+        addItemToTheThree(cacheItemId, newCacheData);
+      }
+    });
+
+    setCacheData(newCacheData);
+    setTimeout(() => {
+      setRebuilding(false);
+    }, 100);
+  }, [addItemToTheThree, cacheMap]);
 
   const setNodeValue = useCallback((list: CacheTreeType[], key: string, value: string): CacheTreeType[] => {
     return list.map((node: CacheTreeType) => {
@@ -69,10 +101,15 @@ const useClientData = (): ClientDataInterface => {
     setCacheData(deleteNode(cacheData, key));
   }, [cacheData, deleteNode]);
 
+  useEffect(() => {
+    rebuildCacheData();
+  }, [cacheMap, rebuildCacheData]);
+
   return {
     cacheData,
     cacheMap,
     deleteCacheTreeNode,
+    rebuilding,
     setCacheMap,
     updateCacheTreeNodeName
   };

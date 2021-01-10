@@ -14,7 +14,7 @@ import './styles.less';
 
 const App: FC = () => {
   const { dbData, dbMap } = useServerData();
-  const { cacheData, cacheMap, deleteCacheTreeNode, setCacheMap, updateCacheTreeNodeName } = useClientData();
+  const { cacheData, cacheMap, deleteCacheTreeNode, rebuilding, setCacheMap, updateCacheTreeNodeName } = useClientData();
 
   console.log('cacheMap', cacheMap);
 
@@ -98,6 +98,8 @@ const App: FC = () => {
     setCacheMap(newCacheMap);
   }, [cacheMap, dbMap, findNodeInParents, setCacheMap]);
 
+  console.log('cacheData', cacheData, 'rebuilding', rebuilding);
+
   return (
     <div className='App'>
       <h1>You can scroll to zoom left (DB) tree by mouse wheel or drug it</h1>
@@ -106,11 +108,13 @@ const App: FC = () => {
           addNodeToCache={addNodeToCache}
           dbData={dbData}
         />
+        {!rebuilding &&
         <CachedTreeView
           cacheData={cacheData}
           deleteTreeNode={deleteCacheTreeNode}
           updateTreeNodeName={updateCacheTreeNodeName}
         />
+        }
       </div>
     </div>
   );

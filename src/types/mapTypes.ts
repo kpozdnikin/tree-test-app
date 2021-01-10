@@ -7,7 +7,7 @@ export type minMapType = {
 
 export interface DbMapItemType extends minMapType {
   children: string[];
-  deleted?: boolean;
+  deleted: boolean;
   level: number;
   value: string;
 }
