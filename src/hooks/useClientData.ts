@@ -1,9 +1,11 @@
 // Copyright 2020 @kpozdnikin
+import { TreeNodeDatum } from 'react-d3-tree/lib/types/common';
+import { CacheTreeType, DbTreeType } from 'types/treeTypes';
+import { CacheMapItemType } from 'types/mapTypes';
 
 import { useCallback, useState } from 'react';
-import { CacheTreeType } from 'types/treeTypes';
-import { CacheMapItemType } from 'types/mapTypes';
-import { cacheTree } from '../mocks/cacheTree';
+
+import { cacheTree } from 'mocks/cacheTree';
 
 interface ClientDataInterface {
   cacheData: CacheTreeType[];

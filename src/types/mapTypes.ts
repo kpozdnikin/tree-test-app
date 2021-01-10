@@ -1,22 +1,27 @@
 // Copyright 2020 @kpozdnikin
 
-export type DbMapItemType = {
+export type minMapType = {
+  id: string;
+  parentId: string | null;
+}
+
+export interface DbMapItemType extends minMapType {
   children: string[];
   deleted?: boolean;
   level: number;
-  parentId: string | null;
   value: string;
+}
+
+export type minDbMapType = {
+  [key: string]: minMapType;
 }
 
 export type DbMapType = {
   [key: string]: DbMapItemType;
 }
 
-export type CacheMapItemType = {
+export interface CacheMapItemType extends DbMapItemType {
   allChildren: string[];
-  children: string[];
-  deleted?: boolean;
-  parentId: string | null;
 }
 
 export type CacheMapType = {

@@ -54,7 +54,7 @@ const DBTreeView: FC<DbTreeViewProps> = (props) => {
       className='tree-wrapper'
       id='treeWrapper'
     >
-      <h2>DB. Click on node to add it to the cache</h2>
+      <h2>DB. Click on a node to add it to the cache</h2>
       <Tree
         collapsible={false}
         data={dbData}
@@ -63,6 +63,7 @@ const DBTreeView: FC<DbTreeViewProps> = (props) => {
         pathFunc={'step'}
         renderCustomNodeElement={renderRectSvgNode}
         translate={{ x: 400, y: 50 }}
+        zoom={0.5}
       />
     </div>
   );
