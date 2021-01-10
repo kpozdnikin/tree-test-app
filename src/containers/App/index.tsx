@@ -23,18 +23,18 @@ const App: FC = () => {
 
     if (dbMapNode.level > cacheMapNode.level) {
       difference = dbMapNode.level - cacheMapNode.level;
-      const targetNumber = isParent(cacheMapNode, dbMapNode, cacheMap, dbMap, 0);
+      const targetNumber = isParent(cacheMapNode, dbMapNode, 1);
 
       return targetNumber === null ? targetNumber : -targetNumber;
     } else if (dbMapNode.level < cacheMapNode.level) {
       difference = cacheMapNode.level - dbMapNode.level;
 
-      return isParent(dbMapNode, cacheMapNode, dbMap, cacheMap, 0);
+      return isParent(dbMapNode, cacheMapNode, 1);
     }
 
     return null;
 
-    function isParent (highNode: minMapType, lowNode: minMapType, highDb: minDbMapType, lowDb: minDbMapType, index: number): number | null {
+    function isParent (highNode: minMapType, lowNode: minMapType, index: number): number | null {
       if (lowNode.parentId === highNode.id) {
         return index;
       }
@@ -43,13 +43,13 @@ const App: FC = () => {
         return null;
       }
 
-      if (lowNode.parentId && lowDb[lowNode.parentId]) {
-        return isParent(highNode, lowDb[lowNode.parentId], highDb, lowDb, index + 1);
+      if (lowNode.parentId && dbMap[lowNode.parentId]) {
+        return isParent(highNode, dbMap[lowNode.parentId], index + 1);
       }
 
       return null;
     }
-  }, [cacheMap, dbMap]);
+  }, [dbMap]);
 
   /*
     При добавлении ноды в кэш нужно проверить другие ноды, уже содержащиеся в кэше,
@@ -61,23 +61,27 @@ const App: FC = () => {
     const dbMapNode = dbMap[id];
     const allChildren: string[] = [];
     const children: string[] = [];
-
-    console.log('dbMapNode', dbMapNode, 'node', node);
     const newCacheMap: CacheMapType = { ...cacheMap };
 
     if (Object.values(cacheMap).length) {
-      console.log('check');
       Object.keys(cacheMap).forEach((cacheMapId) => {
         const status = findNodeInParents(dbMapNode, newCacheMap[cacheMapId]);
 
-        console.log('status', status);
-        /* if (status !== null) {
+        if (status !== null) {
           if (status > 0) {
-            newCacheMap[cacheMapId].allChildren.push(id);
+            allChildren.push(cacheMapId);
+
+            if (status === 1) {
+              children.push(cacheMapId);
+            }
           } else {
             newCacheMap[cacheMapId].allChildren.push(id);
+
+            if (status === -1) {
+              newCacheMap[cacheMapId].children.push(id);
+            }
           }
-        } */
+        }
       });
     }
 
