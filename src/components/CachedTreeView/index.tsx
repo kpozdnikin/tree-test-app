@@ -83,7 +83,8 @@ const CachedTreeView: FC<CachedTreeViewProps> = (props) => {
   const onApplyChanges = useCallback(() => {
     applyChanges();
     setSomethingChanged(false);
-  }, [applyChanges, setSomethingChanged]);
+    clearSelected();
+  }, [applyChanges, clearSelected, setSomethingChanged]);
 
   const onResetChanges = useCallback(() => {
     resetChanges();
@@ -128,13 +129,13 @@ const CachedTreeView: FC<CachedTreeViewProps> = (props) => {
       )}
       <div className='button-group'>
         <Button
-          disabled={!selectedNode}
+          disabled={!selectedNode || !Object.keys(cacheData).length}
           onClick={onAddNewItem}
         >
           +
         </Button>
         <Button
-          disabled={!selectedNode}
+          disabled={!selectedNode || !Object.keys(cacheData).length}
           onClick={onDeleteTreeNode}
         >
           -

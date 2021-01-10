@@ -103,15 +103,18 @@ const App: FC = () => {
   const applyChangesToDb = useCallback(() => {
     const newDbMap: DbMapType = { ...dbMap };
 
-    console.log('newDbMap', newDbMap, 'cacheMap', cacheMap);
     Object.keys(cacheMap).forEach((cacheMapId) => {
       if (newDbMap[cacheMapId]) {
+        const allChildrenData: {[key: string]: boolean} = {};
+
+        newDbMap[cacheMapId].children.concat(cacheMap[cacheMapId].children).forEach((item) => {
+          allChildrenData[item] = true;
+        });
+        const allChildren: string[] = Object.keys(allChildrenData);
+
         newDbMap[cacheMapId].value = cacheMap[cacheMapId].value;
         newDbMap[cacheMapId].deleted = cacheMap[cacheMapId].deleted;
-        newDbMap[cacheMapId].children = [
-          ...newDbMap[cacheMapId].children,
-          ...cacheMap[cacheMapId].children
-        ];
+        newDbMap[cacheMapId].children = allChildren;
       } else {
         newDbMap[cacheMapId] = {
           children: cacheMap[cacheMapId].children,
@@ -169,8 +172,6 @@ const App: FC = () => {
   useEffect(() => {
     setCacheMaxKey(maxKey);
   }, [maxKey]);
-
-  console.log('dbData', dbData, 'dbMap', dbMap, 'cacheMap', cacheMap);
 
   return (
     <div className='App'>
