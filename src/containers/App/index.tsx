@@ -63,6 +63,7 @@ const App: FC = () => {
     const allChildren: string[] = [];
     const children: string[] = [];
     const newCacheMap: CacheMapType = { ...cacheMap };
+    let isItemDeleted = false;
 
     if (Object.values(cacheMap).length) {
       Object.keys(cacheMap).forEach((cacheMapId) => {
@@ -81,6 +82,10 @@ const App: FC = () => {
             if (status === -1) {
               newCacheMap[cacheMapId].children.push(id);
             }
+
+            if (newCacheMap[cacheMapId].deleted) {
+              isItemDeleted = true;
+            }
           }
         }
       });
@@ -89,7 +94,7 @@ const App: FC = () => {
     newCacheMap[id] = {
       allChildren,
       children,
-      deleted: dbMapNode.deleted,
+      deleted: dbMapNode.deleted || isItemDeleted,
       id,
       level: dbMapNode.level,
       parentId: dbMapNode.parentId,
