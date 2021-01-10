@@ -58,47 +58,28 @@ const useClientData = (): ClientDataInterface => {
     });
   }, [addItemToTheThree, cacheMap]);
 
-  const setNodeValue = useCallback((list: CacheTreeType[], key: string, value: string): CacheTreeType[] => {
-    return list.map((node: CacheTreeType) => {
-      if (node.key === key) {
-        return {
-          ...node,
-          title: value
-        };
-      } else if (node.children) {
-        return {
-          ...node,
-          children: setNodeValue(node.children, key, value)
-        };
-      } else return node;
-    });
-  }, []);
-
-  const deleteNode = useCallback((list: CacheTreeType[], key: string): CacheTreeType[] => {
-    const newList = list.filter((node: CacheTreeType) => {
-      if (node.key !== key) {
-        if (node.children) {
-          return {
-            ...node,
-            children: deleteNode(node.children, key)
-          };
-        } else return node;
-      }
-    });
-
-    console.log('newList', newList, 'list', list);
-
-    return newList;
-  }, []);
-
   const updateCacheTreeNodeName = useCallback((key: string, value: string) => {
-    setCacheData(setNodeValue(cacheData, key, value));
-  }, [cacheData, setNodeValue]);
+    setCacheMap((prevCacheMap) => ({
+      ...prevCacheMap,
+      [key]: {
+        ...prevCacheMap[key],
+        value
+      }
+    }));
+  }, []);
 
   const deleteCacheTreeNode = useCallback((key: string) => {
-    console.log('deleteCacheTreeNode', key);
-    setCacheData(deleteNode(cacheData, key));
-  }, [cacheData, deleteNode]);
+    setCacheMap((prevCacheMap) => {
+      const newCacheMap = { ...prevCacheMap };
+
+      newCacheMap[key].deleted = true;
+      newCacheMap[key].allChildren.forEach((childId) => {
+        newCacheMap[childId].deleted = true;
+      });
+
+      return newCacheMap;
+    });
+  }, []);
 
   useEffect(() => {
     rebuildCacheData();
