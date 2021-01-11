@@ -107,10 +107,12 @@ const App: FC = () => {
 
   const setChildrenDeleted = useCallback((newDbMap: DbMapType, childIds: string[]) => {
     childIds.forEach((childId: string) => {
-      newDbMap[childId].deleted = true;
+      if (newDbMap[childId]) {
+        newDbMap[childId].deleted = true;
 
-      if (newDbMap[childId].children.length) {
-        setChildrenDeleted(newDbMap, newDbMap[childId].children);
+        if (newDbMap[childId].children.length) {
+          setChildrenDeleted(newDbMap, newDbMap[childId].children);
+        }
       }
     });
   }, []);
@@ -168,6 +170,14 @@ const App: FC = () => {
     }
   }, [cacheMap]);
 
+  const checkParents = useCallback((newCacheMap: CacheMapType, key: string, newKey: string) => {
+    Object.keys(newCacheMap).forEach((mapItemKey) => {
+      if (newCacheMap[mapItemKey].allChildren.includes(key) && !newCacheMap[mapItemKey].allChildren.includes(newKey)) {
+        newCacheMap[mapItemKey].allChildren.push(newKey);
+      }
+    });
+  }, []);
+
   const addNewNodeToCache = useCallback((key: string) => {
     // 1. Generate new key
     const newKey = `node${cacheMaxKey + 1}`;
@@ -188,10 +198,14 @@ const App: FC = () => {
 
     fillAllChildren(newCacheMap[key], newKey);
 
+    // if new item has parent in cache and this parent is in somebody's allChildren array,
+    // add new item to this array too
+    checkParents(newCacheMap, key, newKey);
+
     setCacheMap(newCacheMap);
     // 4. Save new key index
     setCacheMaxKey(cacheMaxKey + 1);
-  }, [cacheMap, cacheMaxKey, fillAllChildren, setCacheMap]);
+  }, [cacheMap, cacheMaxKey, checkParents, fillAllChildren, setCacheMap]);
 
   useEffect(() => {
     setCacheMaxKey(maxKey);
