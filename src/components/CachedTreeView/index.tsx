@@ -106,8 +106,6 @@ const CachedTreeView: FC<CachedTreeViewProps> = (props) => {
     );
   }, [cacheMap, onSelectNode, selectedNode]);
 
-  console.log('cacheMap', cacheMap);
-
   return (
     <div className='cached-tree-view'>
       <h2>Cache</h2>
