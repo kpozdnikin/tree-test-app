@@ -1,10 +1,10 @@
 // Copyright 2020 @kpozdnikin
 import { CacheTreeType } from 'types/treeTypes';
+import { CacheMapType } from 'types/mapTypes';
 
 import React, { FC, memo, useCallback, useState } from 'react';
 import Input from 'antd/lib/input';
 import Form from 'antd/lib/form';
-import Tree from 'antd/lib/tree';
 import Button from 'antd/lib/button';
 
 import './styles.less';
@@ -13,18 +13,12 @@ interface CachedTreeViewProps {
   addNewItem: (key: string) => void;
   applyChanges: () => void;
   cacheData: CacheTreeType[];
+  cacheMap: CacheMapType;
   deleteTreeNode: (key: string) => void;
-  rebuilding: boolean;
   resetChanges: () => void;
   somethingChanged: boolean;
   setSomethingChanged: (changed: boolean) => void;
   updateTreeNodeName: (key: string, value: string) => void;
-}
-
-type InfoType = {
-  event: 'select';
-  node: any;
-  selected: boolean;
 }
 
 /*
@@ -40,29 +34,25 @@ const CachedTreeView: FC<CachedTreeViewProps> = (props) => {
     addNewItem,
     applyChanges,
     cacheData,
+    cacheMap,
     deleteTreeNode,
-    rebuilding,
     resetChanges,
     setSomethingChanged,
     somethingChanged,
     updateTreeNodeName
   } = props;
   const [selectedNode, setSelectedNode] = useState<CacheTreeType>();
-  const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
   const [editMode, setEditMode] = useState<boolean>(false);
 
   const clearSelected = useCallback(() => {
     setSelectedNode(undefined);
-    setSelectedKeys([]);
     setEditMode(false);
   }, []);
 
-  const onSelectNode = useCallback((keys: React.Key[], info: InfoType) => {
+  const onSelectNode = useCallback((node: CacheTreeType, e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
     clearSelected();
-    setSelectedNode(info.node);
-    const { key } = info.node as CacheTreeType;
-
-    setSelectedKeys([key]);
+    setSelectedNode(node);
   }, [clearSelected]);
 
   const onValueChange = useCallback((values: { value: string }) => {
@@ -97,20 +87,29 @@ const CachedTreeView: FC<CachedTreeViewProps> = (props) => {
     setSomethingChanged(true);
   }, [addNewItem, selectedNode, setSomethingChanged]);
 
-  // @todo optimize rendering to avoid full rerender of tree by rebuilding flag
+  const renderChild = useCallback((items: CacheTreeType[]) => {
+    return (
+      <>
+        { items.map((item) => (
+          <div
+            className={`${cacheMap[item.key] && cacheMap[item.key].deleted ? 'tree-node disabled' : selectedNode && item.key === selectedNode.key ? 'tree-node selected' : 'tree-node'}`}
+            key={item.key}
+            onClick={(e) => onSelectNode(item, e)}
+          >
+            {item.title}
+            { item.children.length > 0 && (
+              renderChild(item.children)
+            )}
+          </div>
+        ))}
+      </>
+    );
+  }, [cacheMap, onSelectNode, selectedNode]);
+
   return (
     <div className='cached-tree-view'>
       <h2>Cache</h2>
-      { !rebuilding && (
-        <Tree
-          defaultExpandAll
-          multiple
-          onSelect={onSelectNode}
-          selectedKeys={selectedKeys}
-          showIcon
-          treeData={cacheData}
-        />
-      )}
+      {renderChild(cacheData)}
       { selectedNode && editMode && (
         <Form
           initialValues={{ value: selectedNode.title }}
@@ -153,7 +152,6 @@ const CachedTreeView: FC<CachedTreeViewProps> = (props) => {
           Apply
         </Button>
         <Button
-          disabled={!somethingChanged}
           onClick={onResetChanges}
         >
           Reset

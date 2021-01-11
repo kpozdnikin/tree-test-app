@@ -12,6 +12,7 @@ export type DbTreeType = {
 
 export type CacheTreeType = {
   children: CacheTreeType[];
+  deleted?: boolean;
   isLeaf: boolean;
   key: string;
   title: string;

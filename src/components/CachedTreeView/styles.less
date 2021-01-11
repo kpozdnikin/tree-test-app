@@ -20,4 +20,19 @@
       margin-bottom: 0;
     }
   }
+
+  .tree-node {
+    margin-left: 10px;
+    cursor: pointer;
+    color: black;
+
+    &.selected {
+      color: green;
+    }
+
+    &.disabled {
+      color: red;
+      cursor: not-allowed;
+    }
+  }
 }

@@ -14,8 +14,8 @@ import { dbTree } from 'mocks/dbTree';
 import './styles.less';
 
 const App: FC = () => {
-  const { dbData, dbMap, maxKey, rebuildDbTreeByDbMap, setDbMap } = useServerData(dbTree);
-  const { cacheData, cacheMap, deleteCacheTreeNode, rebuilding, setCacheMap, updateCacheTreeNodeName } = useClientData();
+  const { dbData, dbMap, maxKey, rebuildDbTreeByDbMap, setDbData, setDbMap } = useServerData(dbTree);
+  const { cacheData, cacheMap, deleteCacheTreeNode, setCacheMap, updateCacheTreeNodeName } = useClientData();
   const [somethingChanged, setSomethingChanged] = useState<boolean>(false);
   const [cacheMaxKey, setCacheMaxKey] = useState<number>(0);
 
@@ -157,7 +157,8 @@ const App: FC = () => {
 
   const resetChangesFromDb = useCallback(() => {
     setCacheMap({});
-  }, [setCacheMap]);
+    setDbData(dbTree);
+  }, [setCacheMap, setDbData]);
 
   const fillAllChildren = useCallback((item: CacheMapItemType, newChildId: string) => {
     item.allChildren = [...item.allChildren, newChildId];
@@ -208,8 +209,8 @@ const App: FC = () => {
           addNewItem={addNewNodeToCache}
           applyChanges={applyChangesToDb}
           cacheData={cacheData}
+          cacheMap={cacheMap}
           deleteTreeNode={deleteCacheTreeNode}
-          rebuilding={rebuilding}
           resetChanges={resetChangesFromDb}
           setSomethingChanged={setSomethingChanged}
           somethingChanged={somethingChanged}

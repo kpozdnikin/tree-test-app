@@ -10,7 +10,6 @@ interface ClientDataInterface {
   cacheData: CacheTreeType[];
   cacheMap: CacheMapType;
   deleteCacheTreeNode: (key: string) => void;
-  rebuilding: boolean;
   setCacheMap: (cacheMap: CacheMapType) => void;
   updateCacheTreeNodeName: (key: string, value: string) => void;
 }
@@ -18,10 +17,9 @@ interface ClientDataInterface {
 const useClientData = (): ClientDataInterface => {
   const [cacheData, setCacheData] = useState<CacheTreeType[]>(cacheTree);
   const [cacheMap, setCacheMap] = useState<CacheMapType>({});
-  const [rebuilding, setRebuilding] = useState<boolean>(true);
 
   const addItemToTheThree = useCallback((cacheItemId: string, children: CacheTreeType[], alreadyAdded: {[key: string]: boolean}) => {
-    if (cacheMap[cacheItemId].deleted || alreadyAdded[cacheItemId]) {
+    if (alreadyAdded[cacheItemId]) {
       return;
     }
 
@@ -41,7 +39,6 @@ const useClientData = (): ClientDataInterface => {
   }, [cacheMap]);
 
   const rebuildCacheData = useCallback(() => {
-    setRebuilding(true);
     const newCacheData: CacheTreeType[] = [];
     const alreadyAdded: {[key: string]: boolean} = {};
 
@@ -53,9 +50,6 @@ const useClientData = (): ClientDataInterface => {
       }
     });
     setCacheData(newCacheData);
-    setTimeout(() => {
-      setRebuilding(false);
-    });
   }, [addItemToTheThree, cacheMap]);
 
   const updateCacheTreeNodeName = useCallback((key: string, value: string) => {
@@ -89,7 +83,6 @@ const useClientData = (): ClientDataInterface => {
     cacheData,
     cacheMap,
     deleteCacheTreeNode,
-    rebuilding,
     setCacheMap,
     updateCacheTreeNodeName
   };

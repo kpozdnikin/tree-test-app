@@ -9,6 +9,7 @@ interface ClientDataInterface {
   dbMap: DbMapType;
   maxKey: number;
   rebuildDbTreeByDbMap: (dbMap: DbMapType) => void;
+  setDbData: (dbData: DbTreeType) => void;
   setDbMap: (dbMap: DbMapType) => void;
 }
 
@@ -123,14 +124,14 @@ const useServerData = (dbTree: DbTreeType): ClientDataInterface => {
 
   useEffect(() => {
     rebuildCacheData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [rebuildCacheData]);
 
   return {
     dbData,
     dbMap,
     maxKey,
     rebuildDbTreeByDbMap,
+    setDbData,
     setDbMap
   };
 };
