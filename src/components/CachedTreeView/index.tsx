@@ -100,7 +100,7 @@ const CachedTreeView: FC<CachedTreeViewProps> = (props) => {
           <div
             className={`${cacheMap[item.key] && cacheMap[item.key].deleted ? 'tree-node disabled' : selectedNode && item.key === selectedNode.key ? 'tree-node selected' : 'tree-node'}`}
             key={item.key}
-            onClick={(e) => onSelectNode(item, e)}
+            onClick={onSelectNode.bind(this, item)}
           >
             {item.title}
             { item.children.length > 0 && (
