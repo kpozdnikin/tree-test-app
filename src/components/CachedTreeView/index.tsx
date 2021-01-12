@@ -51,9 +51,14 @@ const CachedTreeView: FC<CachedTreeViewProps> = (props) => {
 
   const onSelectNode = useCallback((node: CacheTreeType, e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
+
+    if (cacheMap[node.key].deleted) {
+      return;
+    }
+
     clearSelected();
     setSelectedNode(node);
-  }, [clearSelected]);
+  }, [cacheMap, clearSelected]);
 
   const onValueChange = useCallback((values: { value: string }) => {
     selectedNode && updateTreeNodeName(selectedNode.key, values.value);
@@ -68,6 +73,7 @@ const CachedTreeView: FC<CachedTreeViewProps> = (props) => {
   const onDeleteTreeNode = useCallback(() => {
     selectedNode && deleteTreeNode(selectedNode.key);
     setSomethingChanged(true);
+    setSelectedNode(undefined);
   }, [deleteTreeNode, setSomethingChanged, selectedNode]);
 
   const onApplyChanges = useCallback(() => {
